@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REACH Pediatrics — Waitlist Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --forest:     #1B4332;
+  --forest-mid: #2D6A4F;
+  --forest-soft:#40916C;
+  --forest-pale:#D8F3DC;
+  --forest-dim: rgba(27,67,50,.06);
+  --amber:      #D97B2C;
+  --amber-bg:   #FEF3E6;
+  --amber-bdr:  #F4C48A;
+  --rose:       #C0534A;
+  --rose-bg:    #FCEEED;
+  --rose-bdr:   #E8A89E;
+  --sage:       #52B788;
+  --sage-bg:    #EDFAF3;
+  --sage-bdr:   #A7E3C4;
+  --indigo:     #4361A8;
+  --indigo-bg:  #EEF2FB;
+  --indigo-bdr: #B0C2EC;
+  --plum:       #7B4FA6;
+  --plum-bg:    #F4EEFB;
+  --plum-bdr:   #CDB4E8;
+  --bg:         #FAFAF8;
+  --surface:    #FFFFFF;
+  --border:     #E8E8E4;
+  --border-mid: #D0CFC8;
+  --text:       #1A1A18;
+  --text-mid:   #4A4A44;
+  --text-mute:  #8A8A82;
+  --sidebar-w:  236px;
+  --topbar-h:   58px;
+  --radius:     8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --shadow-sm:  0 1px 2px rgba(0,0,0,.06);
+  --shadow:     0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,.12), 0 2px 4px rgba(0,0,0,.06);
+}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--text);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:'Plus Jakarta Sans',sans-serif}
+button{cursor:pointer}
+
+/* ─── AUTH SCREEN ─── */
+#auth-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--forest);
+  background-image: radial-gradient(ellipse at 70% 20%, rgba(64,145,108,.35) 0%, transparent 60%),
+                    radial-gradient(ellipse at 20% 80%, rgba(45,106,79,.4) 0%, transparent 55%);
+}
+.auth-card{
+  background:var(--surface);border-radius:var(--radius-xl);
+  padding:2.5rem;width:100%;max-width:400px;
+  box-shadow:0 24px 64px rgba(0,0,0,.28);
+}
+.auth-logomark{
+  width:52px;height:52px;background:var(--forest);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;color:white;margin-bottom:1.5rem;
+  box-shadow:0 4px 12px rgba(27,67,50,.3);
+}
+.auth-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:.25rem}
+.auth-sub{font-size:13px;color:var(--text-mute);margin-bottom:1.75rem}
+.auth-demo{
+  background:var(--forest-pale);border-radius:var(--radius);
+  padding:.625rem .875rem;font-size:12px;color:var(--forest-mid);
+  margin-top:.75rem;line-height:1.7;
+}
+.auth-demo strong{font-weight:600}
+
+/* ─── APP SHELL ─── */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ─── SIDEBAR ─── */
+.sidebar{
+  width:var(--sidebar-w);
+  background:var(--forest);
+  display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;
+  box-shadow:2px 0 12px rgba(0,0,0,.12);
+}
+.sb-header{padding:1.25rem 1.125rem 1rem;border-bottom:1px solid rgba(255,255,255,.09)}
+.sb-brand{display:flex;align-items:center;gap:.625rem}
+.sb-mark{
+  width:34px;height:34px;background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.2);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:white;flex-shrink:0;
+}
+.sb-brand-text{}
+.sb-brand-name{font-size:13px;font-weight:700;color:white;line-height:1.2;letter-spacing:-.01em}
+.sb-brand-sub{font-size:11px;color:rgba(255,255,255,.4);line-height:1.3;margin-top:1px}
+.sb-nav{padding:.625rem .75rem;flex:1}
+.sb-group{margin-bottom:.25rem}
+.sb-group-label{
+  font-size:10px;font-weight:600;color:rgba(255,255,255,.28);
+  padding:.75rem .5rem .3rem;letter-spacing:.06em
+}
+.sb-item{
+  display:flex;align-items:center;gap:.625rem;
+  padding:.5rem .625rem;border-radius:var(--radius);
+  font-size:13px;font-weight:500;color:rgba(255,255,255,.6);
+  cursor:pointer;transition:background .12s,color .12s;
+  border:none;background:transparent;width:100%;text-align:left;
+  margin-bottom:1px;
+}
+.sb-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.sb-item.active{background:rgba(255,255,255,.14);color:white}
+.sb-item-icon{
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;transition:background .12s;
+  background:rgba(255,255,255,.06);
+}
+.sb-item.active .sb-item-icon{background:rgba(255,255,255,.16)}
+.sb-item-label{flex:1}
+.sb-count{
+  background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);
+  font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;min-width:22px;text-align:center;
+}
+.sb-count-alert{background:var(--amber);color:white}
+.sb-divider{height:1px;background:rgba(255,255,255,.08);margin:.5rem .75rem}
+.sb-footer{padding:.875rem .75rem 1rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-user{display:flex;align-items:center;gap:.625rem;padding:.375rem .25rem}
+.sb-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:white;flex-shrink:0;
+}
+.sb-user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.8);line-height:1.2}
+.sb-user-role{font-size:11px;color:rgba(255,255,255,.35);margin-top:1px}
+.sb-logout{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.5rem .625rem;border-radius:var(--radius);
+  font-size:12px;font-weight:500;color:rgba(255,255,255,.4);
+  background:transparent;border:none;width:100%;margin-top:.25rem;
+  cursor:pointer;transition:all .12s;
+}
+.sb-logout:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7)}
+
+/* ─── MAIN AREA ─── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ─── TOPBAR ─── */
+.topbar{
+  height:var(--topbar-h);background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;flex-shrink:0;gap:1rem;
+}
+.topbar-left{}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.topbar-sub{font-size:12px;color:var(--text-mute);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:.5rem}
+
+/* ─── BUTTONS ─── */
+.btn{
+  padding:7px 14px;border-radius:var(--radius);font-size:13px;font-weight:600;
+  border:1.5px solid var(--border);background:var(--surface);color:var(--text-mid);
+  transition:all .12s;cursor:pointer;white-space:nowrap;
+}
+.btn:hover{border-color:var(--border-mid);color:var(--text);background:var(--bg)}
+.btn-primary{background:var(--forest);color:white;border-color:var(--forest)}
+.btn-primary:hover{background:var(--forest-mid);border-color:var(--forest-mid)}
+.btn-amber{background:var(--amber);color:white;border-color:var(--amber)}
+.btn-amber:hover{opacity:.92}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-xs{padding:4px 9px;font-size:11px;font-weight:600}
+
+/* ─── CONTENT ─── */
+.content{flex:1;overflow-y:auto;padding:1.5rem}
+
+/* ─── STATS ─── */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.875rem;margin-bottom:1.5rem}
+.stat-card{
+  background:var(--surface);border-radius:var(--radius-lg);
+  padding:1rem 1.125rem;border:1.5px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:3px;border-radius:0 2px 2px 0;
+}
+.stat-card.s-default::before{background:var(--border-mid)}
+.stat-card.s-rose::before{background:var(--rose)}
+.stat-card.s-sage::before{background:var(--sage)}
+.stat-card.s-amber::before{background:var(--amber)}
+.stat-card.s-indigo::before{background:var(--indigo)}
+.stat-val{font-size:2rem;font-weight:700;line-height:1;letter-spacing:-.03em}
+.stat-card.s-rose .stat-val{color:var(--rose)}
+.stat-card.s-sage .stat-val{color:var(--sage)}
+.stat-card.s-amber .stat-val{color:var(--amber)}
+.stat-card.s-indigo .stat-val{color:var(--indigo)}
+.stat-label{font-size:12px;font-weight:500;color:var(--text-mute);margin-top:5px}
+.stat-sub{font-size:11px;color:var(--text-mute);margin-top:2px}
+
+/* ─── TOOLBAR ─── */
+.toolbar{
+  display:flex;align-items:center;gap:.625rem;
+  margin-bottom:1rem;flex-wrap:wrap;
+}
+.search-wrap{position:relative;min-width:220px;flex:1;max-width:320px}
+.search-input{
+  width:100%;padding:7px 10px 7px 34px;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-size:13px;font-weight:500;color:var(--text);background:var(--surface);
+  transition:border-color .12s,box-shadow .12s;
+}
+.search-input:focus{outline:none;border-color:var(--forest-soft);box-shadow:0 0 0 3px rgba(64,145,108,.1)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-mute);pointer-events:none;font-size:14px}
+.filter-pill{
+  padding:6px 12px;border:1.5px solid var(--border);border-radius:99px;
+  font-size:12px;font-weight:600;color:var(--text-mid);
+  background:var(--surface);cursor:pointer;transition:all .12s;white-space:nowrap;
+}
+.filter-pill:focus{outline:none}
+.filter-pill:hover{border-color:var(--border-mid);color:var(--text)}
+select.filter-pill{-webkit-appearance:none;padding-right:26px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238A8A82' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+.view-tabs{
+  display:flex;background:var(--bg);border:1.5px solid var(--border);
+  border-radius:99px;padding:2px;gap:1px;margin-left:auto;
+}
+.view-tab{
+  padding:5px 14px;border-radius:99px;font-size:12px;font-weight:600;
+  color:var(--text-mute);background:transparent;border:none;cursor:pointer;
+  transition:all .15s;
+}
+.view-tab.active{background:var(--forest);color:white;box-shadow:0 1px 3px rgba(27,67,50,.25)}
+
+/* ─── TABLE ─── */
+.table-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+.table-header{
+  padding:.875rem 1.125rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.table-header-title{font-size:13px;font-weight:600;color:var(--text)}
+table{width:100%;border-collapse:collapse}
+thead th{
+  padding:8px 12px;font-size:11px;font-weight:700;
+  color:var(--text-mute);text-align:left;
+  background:var(--bg);border-bottom:1px solid var(--border);
+  white-space:nowrap;cursor:pointer;user-select:none;letter-spacing:.01em;
+}
+thead th:hover{color:var(--text-mid)}
+thead th.sorted{color:var(--forest)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#F7F9F7}
+tbody tr.row-expanded{background:var(--forest-pale)!important}
+tbody td{padding:10px 12px;font-size:13px;vertical-align:middle}
+.td-name{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.01em}
+.td-sub{font-size:11px;color:var(--text-mute);margin-top:2px}
+
+/* ─── PRIORITY PILL ─── */
+.pri-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px 4px 6px;border-radius:99px;
+  font-size:12px;font-weight:700;
+}
+.pri-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.pri-high{background:var(--rose-bg);color:var(--rose)}
+.pri-high .pri-dot{background:var(--rose)}
+.pri-med{background:var(--amber-bg);color:#A05A18}
+.pri-med .pri-dot{background:var(--amber)}
+.pri-low{background:var(--sage-bg);color:#2A6644}
+.pri-low .pri-dot{background:var(--sage)}
+
+/* ─── BADGES ─── */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-ot{background:var(--indigo-bg);color:var(--indigo);border:1px solid var(--indigo-bdr)}
+.badge-pt{background:var(--sage-bg);color:#2A6644;border:1px solid var(--sage-bdr)}
+.badge-slp{background:var(--plum-bg);color:var(--plum);border:1px solid var(--plum-bdr)}
+.badge-multi{background:#F5F0FF;color:#5B3E8A;border:1px solid #D4C4F0}
+.badge-ready{background:var(--sage-bg);color:#2A6644;border:1px solid var(--sage-bdr)}
+.badge-pending{background:var(--amber-bg);color:#8A4E10;border:1px solid var(--amber-bdr)}
+.badge-urgent{background:var(--rose-bg);color:var(--rose);border:1px solid var(--rose-bdr)}
+.badge-neutral{background:var(--bg);color:var(--text-mute);border:1px solid var(--border)}
+.badge-sms-on{background:var(--sage-bg);color:#2A6644;border:1px solid var(--sage-bdr)}
+.badge-sms-off{background:var(--bg);color:var(--text-mute);border:1px solid var(--border)}
+.ins-chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.ins-v{background:var(--sage-bg);color:#2A6644}
+.ins-p{background:var(--amber-bg);color:#8A4E10}
+.ins-n{background:var(--bg);color:var(--text-mute)}
+
+/* ─── DRAWER ─── */
+.drawer-tr td{padding:0!important}
+.drawer-body{
+  border-top:2px solid var(--forest-soft);
+  background:linear-gradient(180deg,#F0F9F4 0%,#FAFAF8 100%);
+  padding:1.25rem 1.5rem 1.25rem;
+}
+.drawer-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:1.125rem}
+.drawer-section{}
+.d-section-title{
+  font-size:10px;font-weight:700;color:var(--forest-soft);
+  letter-spacing:.05em;margin-bottom:.625rem;
+  padding-bottom:.375rem;border-bottom:1px solid rgba(64,145,108,.2);
+}
+.d-row{margin-bottom:.5rem}
+.d-label{font-size:11px;color:var(--text-mute);font-weight:500}
+.d-val{font-size:13px;color:var(--text);font-weight:500;margin-top:1px}
+.score-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.375rem}
+.score-chip{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:.5rem .75rem;text-align:center;flex:1;min-width:72px;
+}
+.score-chip-val{font-size:17px;font-weight:700;line-height:1}
+.score-chip-label{font-size:10px;color:var(--text-mute);margin-top:3px;font-weight:500}
+.sc-clinical .score-chip-val{color:var(--rose)}
+.sc-insurance .score-chip-val{color:var(--amber)}
+.sc-logistics .score-chip-val{color:var(--indigo)}
+.sc-total{border-color:var(--forest-soft)}
+.sc-total .score-chip-val{color:var(--forest)}
+.notes-area{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:.625rem .875rem;
+  font-size:13px;color:var(--text-mid);line-height:1.6;
+  max-height:72px;overflow-y:auto;
+}
+.drawer-comm{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.comm-item{display:flex;align-items:center;gap:.5rem;font-size:13px;font-weight:500}
+.comm-item span{color:var(--text-mid)}
+.comm-meta{font-size:11px;color:var(--text-mute);margin-left:.25rem}
+.drawer-actions{
+  display:flex;gap:.5rem;flex-wrap:wrap;
+  padding-top:.875rem;border-top:1px solid rgba(64,145,108,.15);
+}
+
+/* ─── TOGGLE ─── */
+.tog{position:relative;width:34px;height:19px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tog-track{
+  position:absolute;inset:0;background:var(--border-mid);
+  border-radius:99px;cursor:pointer;transition:background .18s;
+}
+.tog-track::after{
+  content:'';position:absolute;width:13px;height:13px;
+  left:3px;top:3px;background:white;border-radius:50%;
+  transition:transform .18s;box-shadow:0 1px 2px rgba(0,0,0,.2);
+}
+.tog input:checked + .tog-track{background:var(--forest-soft)}
+.tog input:checked + .tog-track::after{transform:translateX(15px)}
+
+/* ─── ADD MODAL ─── */
+.modal-backdrop{
+  display:none;position:fixed;inset:0;
+  background:rgba(10,20,15,.55);backdrop-filter:blur(3px);
+  z-index:200;align-items:flex-start;justify-content:center;
+  padding:1.5rem 1rem;overflow-y:auto;
+}
+.modal-backdrop.open{display:flex}
+.modal{
+  background:var(--surface);border-radius:var(--radius-xl);
+  width:100%;max-width:840px;margin:auto;
+  box-shadow:var(--shadow-lg);overflow:hidden;
+}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);
+  background:var(--bg);
+}
+.modal-head h2{font-size:16px;font-weight:700;letter-spacing:-.02em}
+.modal-close{
+  width:28px;height:28px;border-radius:6px;border:none;
+  background:transparent;color:var(--text-mute);font-size:16px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .12s;
+}
+.modal-close:hover{background:var(--border);color:var(--text)}
+.modal-body{padding:1.5rem;max-height:72vh;overflow-y:auto}
+.modal-foot{
+  padding:1rem 1.5rem;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:.5rem;background:var(--bg);
+}
+.form-block{margin-bottom:1.5rem}
+.form-block-title{
+  font-size:12px;font-weight:700;color:var(--forest);
+  margin-bottom:.875rem;padding-bottom:.5rem;
+  border-bottom:1.5px solid var(--forest-pale);letter-spacing:.01em;
+}
+.fgrid{display:grid;gap:.75rem}
+.fgrid-3{grid-template-columns:repeat(3,1fr)}
+.fgrid-2{grid-template-columns:repeat(2,1fr)}
+.fgrid-4{grid-template-columns:repeat(4,1fr)}
+.field{}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text-mid);margin-bottom:4px}
+.field label .req{color:var(--rose);margin-left:1px}
+.fi{
+  width:100%;padding:7px 10px;border:1.5px solid var(--border);
+  border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text);
+  background:var(--surface);transition:border-color .12s,box-shadow .12s;
+}
+.fi:focus{outline:none;border-color:var(--forest-soft);box-shadow:0 0 0 3px rgba(64,145,108,.1)}
+.fi.err{border-color:var(--rose)}
+textarea.fi{min-height:76px;resize:vertical}
+.ferr{font-size:11px;color:var(--rose);margin-top:3px;font-weight:500}
+.fhint{font-size:11px;color:var(--text-mute);margin-top:3px}
+.score-preview{
+  background:linear-gradient(135deg,var(--forest-pale) 0%,#EAF7F0 100%);
+  border:1.5px solid rgba(64,145,108,.3);
+  border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-top:1rem;
+}
+.score-preview-title{font-size:12px;font-weight:700;color:var(--forest);margin-bottom:.75rem}
+.score-preview-chips{display:flex;gap:.625rem;flex-wrap:wrap}
+.spc{
+  background:var(--surface);border-radius:var(--radius);
+  padding:.5rem .75rem;flex:1;min-width:88px;text-align:center;
+  border:1px solid rgba(64,145,108,.15);
+}
+.spc-val{font-size:19px;font-weight:700;line-height:1}
+.spc-label{font-size:10px;color:var(--text-mute);margin-top:3px;font-weight:500}
+.spc-total .spc-val{color:var(--forest);font-size:22px}
+.spc-explain{font-size:12px;text-align:center;margin-top:.625rem;font-weight:500}
+
+/* ─── LOG ─── */
+.log-entry{display:flex;gap:.75rem;padding:.875rem 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.log-entry:last-child{border-bottom:none}
+.log-pip{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.log-pip-added{background:var(--sage)}
+.log-pip-checkin{background:var(--plum)}
+.log-pip-removed{background:var(--rose)}
+.log-pip-admitted{background:var(--forest)}
+.log-pip-edit{background:var(--text-mute)}
+.log-content{flex:1}
+.log-event-title{font-size:13px;font-weight:600}
+.log-event-detail{font-size:12px;color:var(--text-mute);margin-top:2px;line-height:1.5}
+.log-time{font-size:11px;color:var(--text-mute);white-space:nowrap;margin-top:2px}
+
+/* ─── EMPTY STATE ─── */
+.empty-state{text-align:center;padding:3rem 1rem}
+.empty-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.4}
+.empty-msg{font-size:14px;font-weight:500;color:var(--text-mute)}
+.empty-sub{font-size:13px;color:var(--text-mute);margin-top:.25rem}
+
+/* ─── NOTICE ─── */
+.notice{display:flex;gap:.625rem;padding:.75rem 1rem;border-radius:var(--radius);font-size:13px;font-weight:500;margin-bottom:1rem}
+.notice-amber{background:var(--amber-bg);color:#7A4A0A;border:1px solid var(--amber-bdr)}
+.notice-info{background:var(--forest-pale);color:var(--forest-mid);border:1px solid rgba(64,145,108,.3)}
+
+/* ─── PAGES ─── */
+.page{display:none}
+.page.active{display:block}
+
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;
+  background:var(--forest);color:white;
+  padding:.75rem 1.125rem;border-radius:var(--radius-lg);
+  font-size:13px;font-weight:600;
+  box-shadow:0 8px 24px rgba(27,67,50,.35);
+  transform:translateY(60px);opacity:0;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),opacity .18s ease;
+  pointer-events:none;max-width:300px;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.drawer-cols{grid-template-columns:repeat(2,1fr)}.fgrid-3,.fgrid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){
+  :root{--sidebar-w:56px}
+  .sb-brand-text,.sb-group-label,.sb-item-label,.sb-count,.sb-user-name,.sb-user-role{display:none}
+  .sb-item{justify-content:center;padding:.625rem}
+  .sb-item-icon{background:transparent}
+  .sb-header{justify-content:center}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .fgrid-2,.fgrid-3,.fgrid-4{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logomark">R</div>
+    <div class="auth-title">REACH Pediatrics</div>
+    <div class="auth-sub">Waitlist Manager &mdash; Staff access only</div>
+    <div class="field" style="margin-bottom:.75rem">
+      <label style="font-size:12px;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Email</label>
+      <input type="email" id="auth-email" class="fi" value="coordinator@reachpediatrics.com">
+    </div>
+    <div class="field" style="margin-bottom:.75rem">
+      <label style="font-size:12px;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px">Password</label>
+      <input type="password" id="auth-pw" class="fi" value="demo1234">
+    </div>
+    <div id="auth-err" style="font-size:12px;color:var(--rose);margin-bottom:.5rem;display:none;font-weight:500"></div>
+    <button class="btn btn-primary" style="width:100%;padding:10px;font-size:14px" onclick="doLogin()">Sign in</button>
+    <div class="auth-demo">
+      <strong>Demo credentials</strong><br>
+      coordinator@reachpediatrics.com &nbsp;/&nbsp; demo1234
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app-shell" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-header">
+      <div class="sb-brand">
+        <div class="sb-mark">R</div>
+        <div class="sb-brand-text">
+          <div class="sb-brand-name">REACH Pediatrics</div>
+          <div class="sb-brand-sub">Therapy Services PC</div>
+        </div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-group">
+        <div class="sb-group-label">Waitlist</div>
+        <button class="sb-item active" id="nav-waitlist" onclick="showPage('waitlist')">
+          <span class="sb-item-icon">⊞</span>
+          <span class="sb-item-label">All patients</span>
+          <span class="sb-count" id="sb-n-all">0</span>
+        </button>
+        <button class="sb-item" id="nav-urgent" onclick="showPage('urgent')">
+          <span class="sb-item-icon">⚑</span>
+          <span class="sb-item-label">Urgent &amp; flagged</span>
+          <span class="sb-count sb-count-alert" id="sb-n-urgent" style="display:none">0</span>
+        </button>
+      </div>
+      <div class="sb-divider"></div>
+      <div class="sb-group">
+        <div class="sb-group-label">Tools</div>
+        <button class="sb-item" id="nav-log" onclick="showPage('log')">
+          <span class="sb-item-icon">≡</span>
+          <span class="sb-item-label">Activity log</span>
+        </button>
+      </div>
+      <div class="sb-divider"></div>
+      <div class="sb-group">
+        <div class="sb-group-label">Sort mode</div>
+        <button class="sb-item" id="sv-urgency" onclick="setView('urgency')">
+          <span class="sb-item-icon">▲</span>
+          <span class="sb-item-label">Urgency view</span>
+        </button>
+        <button class="sb-item" id="sv-schedule" onclick="setView('schedule')">
+          <span class="sb-item-icon">◈</span>
+          <span class="sb-item-label">Fill-schedule</span>
+        </button>
+      </div>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar">SC</div>
+        <div>
+          <div class="sb-user-name">S. Coordinator</div>
+          <div class="sb-user-role">Referral Coordinator</div>
+        </div>
+      </div>
+      <button class="sb-logout" onclick="doLogout()">
+        <span>⇥</span><span>Sign out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="tb-title">Waitlist</div>
+        <div class="topbar-sub" id="tb-sub">All active patients</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-sm" onclick="triggerBulkCheckin()">Send check-ins</button>
+        <button class="btn btn-amber btn-sm" onclick="openAddModal()">+ Add patient</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- WAITLIST PAGE -->
+      <div class="page active" id="page-waitlist">
+        <div class="stats-grid">
+          <div class="stat-card s-default">
+            <div class="stat-val" id="st-total">0</div>
+            <div class="stat-label">Active waitlist</div>
+          </div>
+          <div class="stat-card s-rose">
+            <div class="stat-val" id="st-urgent">0</div>
+            <div class="stat-label">High priority</div>
+            <div class="stat-sub">score &ge; 75</div>
+          </div>
+          <div class="stat-card s-sage">
+            <div class="stat-val" id="st-ready">0</div>
+            <div class="stat-label">Ready to schedule</div>
+            <div class="stat-sub">auth + docs complete</div>
+          </div>
+          <div class="stat-card s-amber">
+            <div class="stat-val" id="st-checkin">0</div>
+            <div class="stat-label">Check-ins due</div>
+            <div class="stat-sub">2-week interval</div>
+          </div>
+          <div class="stat-card s-indigo">
+            <div class="stat-val" id="st-avg">—</div>
+            <div class="stat-label">Avg wait</div>
+            <div class="stat-sub">days</div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input type="text" class="search-input" id="search-input" placeholder="Search patient, diagnosis, insurance…" oninput="renderTable()">
+          </div>
+          <select class="filter-pill" id="f-discipline" onchange="renderTable()">
+            <option value="">All disciplines</option>
+            <option value="OT">OT</option>
+            <option value="PT">PT</option>
+            <option value="SLP">SLP</option>
+            <option value="Multi">Multi-discipline</option>
+          </select>
+          <select class="filter-pill" id="f-status" onchange="renderTable()">
+            <option value="">All statuses</option>
+            <option value="ready">Ready to schedule</option>
+            <option value="pending">Pending docs/auth</option>
+            <option value="urgent">Urgent / flagged</option>
+          </select>
+          <select class="filter-pill" id="f-insurance" onchange="renderTable()">
+            <option value="">All insurance</option>
+            <option value="verified">Auth verified</option>
+            <option value="pending">Auth pending</option>
+          </select>
+          <div class="view-tabs">
+            <button class="view-tab active" id="vt-urgency" onclick="setView('urgency')">Urgency</button>
+            <button class="view-tab" id="vt-schedule" onclick="setView('schedule')">Fill schedule</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortBy('priority')" id="th-priority">Priority ↕</th>
+                <th>Patient</th>
+                <th>Discipline</th>
+                <th>Diagnosis / referral</th>
+                <th onclick="sortBy('insurance')" id="th-insurance">Insurance ↕</th>
+                <th>Status</th>
+                <th onclick="sortBy('wait')" id="th-wait">Wait ↕</th>
+                <th>SMS</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="patient-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- URGENT PAGE -->
+      <div class="page" id="page-urgent">
+        <div class="notice notice-amber">
+          <span>⚠</span>
+          <span>Patients with a priority score of 75+, active auth deadlines, or manual flags. Review daily.</span>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Priority</th><th>Patient</th><th>Discipline</th>
+                <th>Reason flagged</th><th>Insurance</th><th>Wait</th><th>SMS</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="urgent-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- LOG PAGE -->
+      <div class="page" id="page-log">
+        <div class="table-card" style="padding:1.25rem">
+          <div style="font-size:15px;font-weight:700;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);letter-spacing:-.02em">Activity log</div>
+          <div id="log-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADD PATIENT MODAL -->
+<div class="modal-backdrop" id="add-modal" onclick="handleModalBg(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Add patient to waitlist</h2>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-block">
+        <div class="form-block-title">Patient &amp; guardian</div>
+        <div class="fgrid fgrid-3" style="margin-bottom:.75rem">
+          <div class="field"><label>First name <span class="req">*</span></label><input type="text" id="f-first" class="fi" placeholder="Emma"><div class="ferr" id="e-first"></div></div>
+          <div class="field"><label>Last name <span class="req">*</span></label><input type="text" id="f-last" class="fi" placeholder="Chen"><div class="ferr" id="e-last"></div></div>
+          <div class="field"><label>Date of birth <span class="req">*</span></label><input type="date" id="f-dob" class="fi"><div class="ferr" id="e-dob"></div></div>
+        </div>
+        <div class="fgrid fgrid-3" style="margin-bottom:.75rem">
+          <div class="field"><label>Guardian name <span class="req">*</span></label><input type="text" id="f-guardian" class="fi"><div class="ferr" id="e-guardian"></div></div>
+          <div class="field"><label>Phone <span class="req">*</span></label><input type="tel" id="f-phone" class="fi" placeholder="(404) 555-0100"><div class="ferr" id="e-phone"></div></div>
+          <div class="field"><label>Email</label><input type="email" id="f-email" class="fi" placeholder="parent@example.com"></div>
+        </div>
+        <div class="fgrid fgrid-2">
+          <div class="field"><label>Address</label><input type="text" id="f-address" class="fi" placeholder="Street, City, State, ZIP"></div>
+          <div class="field"><label>Scheduling constraints</label><input type="text" id="f-avail" class="fi" placeholder="e.g. after school only, Tues/Thurs"></div>
+        </div>
+      </div>
+
+      <div class="form-block">
+        <div class="form-block-title">Referral &amp; clinical</div>
+        <div class="fgrid fgrid-3" style="margin-bottom:.75rem">
+          <div class="field"><label>Discipline needed <span class="req">*</span></label>
+            <select id="f-discipline-add" class="fi" onchange="updateScorePreview()">
+              <option value="">Select</option>
+              <option value="OT">Occupational Therapy (OT)</option>
+              <option value="PT">Physical Therapy (PT)</option>
+              <option value="SLP">Speech-Language Pathology (SLP)</option>
+              <option value="OT+PT">OT + PT</option>
+              <option value="OT+SLP">OT + SLP</option>
+              <option value="PT+SLP">PT + SLP</option>
+              <option value="OT+PT+SLP">OT + PT + SLP</option>
+            </select>
+            <div class="ferr" id="e-discipline"></div></div>
+          <div class="field"><label>Primary diagnosis / concern</label><input type="text" id="f-diagnosis" class="fi" placeholder="e.g. Sensory processing disorder"></div>
+          <div class="field"><label>Referring MD / provider <span class="req">*</span></label><input type="text" id="f-md" class="fi" placeholder="Dr. Name, Practice"><div class="ferr" id="e-md"></div></div>
+        </div>
+        <div class="fgrid fgrid-4" style="margin-bottom:.75rem">
+          <div class="field"><label>Clinical urgency (1–5) <span class="req">*</span></label>
+            <select id="f-urgency" class="fi" onchange="updateScorePreview()">
+              <option value="">—</option>
+              <option value="1">1 — Routine</option>
+              <option value="2">2 — Mild concern</option>
+              <option value="3">3 — Moderate</option>
+              <option value="4">4 — High</option>
+              <option value="5">5 — Critical / post-op</option>
+            </select>
+            <div class="ferr" id="e-urgency"></div></div>
+          <div class="field"><label>Auth deadline</label><input type="date" id="f-auth-deadline" class="fi" onchange="updateScorePreview()"><div class="fhint">Leave blank if no deadline</div></div>
+          <div class="field"><label>Developmental window</label>
+            <select id="f-dev-flag" class="fi" onchange="updateScorePreview()">
+              <option value="0">No</option><option value="1">Yes — critical window</option>
+            </select></div>
+          <div class="field"><label>Manual flag</label>
+            <select id="f-manual-flag" class="fi">
+              <option value="0">No flag</option><option value="1">Flag as high priority</option>
+            </select></div>
+        </div>
+        <div class="field"><label>MD notes / referral summary</label><textarea id="f-md-notes" class="fi" placeholder="Paste or summarize the fax / referral notes from the MD here…"></textarea></div>
+      </div>
+
+      <div class="form-block">
+        <div class="form-block-title">Insurance &amp; documentation</div>
+        <div class="fgrid fgrid-3" style="margin-bottom:.75rem">
+          <div class="field"><label>Insurance carrier <span class="req">*</span></label><input type="text" id="f-ins-carrier" class="fi" placeholder="Aetna, BCBS, Medicaid…"><div class="ferr" id="e-ins-carrier"></div></div>
+          <div class="field"><label>Member ID</label><input type="text" id="f-ins-id" class="fi" placeholder="Member ID"></div>
+          <div class="field"><label>Authorization status</label>
+            <select id="f-auth-status" class="fi" onchange="updateScorePreview()">
+              <option value="none">Not started</option>
+              <option value="pending">Pending verification</option>
+              <option value="verified">Verified &amp; active</option>
+            </select></div>
+        </div>
+        <div class="fgrid fgrid-3">
+          <div class="field"><label>Insurance tier</label>
+            <select id="f-ins-tier" class="fi" onchange="updateScorePreview()">
+              <option value="standard">Standard</option>
+              <option value="medicaid">Medicaid</option>
+              <option value="high">High reimbursement</option>
+              <option value="self">Self-pay</option>
+            </select></div>
+          <div class="field"><label>Documentation readiness</label>
+            <select id="f-doc-ready" class="fi" onchange="updateScorePreview()">
+              <option value="incomplete">Incomplete</option>
+              <option value="partial">Partially complete</option>
+              <option value="complete">Complete — ready to schedule</option>
+            </select></div>
+          <div class="field"><label>Location preference</label>
+            <select id="f-location" class="fi">
+              <option value="main">Main clinic</option>
+              <option value="satellite">Satellite location</option>
+              <option value="home">Home visit</option>
+              <option value="any">Any</option>
+            </select></div>
+        </div>
+      </div>
+
+      <div class="form-block">
+        <div class="form-block-title">Communication &amp; notes</div>
+        <div class="fgrid fgrid-2">
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:600">SMS check-in (every 2 weeks)</div><div style="font-size:11px;color:var(--text-mute);margin-top:1px">Default on. Staff can override anytime.</div></div>
+              <label class="tog"><input type="checkbox" id="f-sms-checkin" checked onchange="updateScorePreview()"><span class="tog-track"></span></label>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0">
+              <div><div style="font-size:13px;font-weight:600">Email updates</div><div style="font-size:11px;color:var(--text-mute);margin-top:1px">Waitlist status notifications</div></div>
+              <label class="tog"><input type="checkbox" id="f-email-updates" checked><span class="tog-track"></span></label>
+            </div>
+          </div>
+          <div class="field"><label>Internal staff notes</label><textarea id="f-notes" class="fi" style="height:90px" placeholder="Coordination notes, follow-up reminders (not sent to patient)…"></textarea></div>
+        </div>
+      </div>
+
+      <div class="score-preview" id="score-preview-box">
+        <div class="score-preview-title">Priority score preview</div>
+        <div class="score-preview-chips">
+          <div class="spc"><div class="spc-val" id="sp-clinical" style="color:var(--rose)">—</div><div class="spc-label">Clinical (60%)</div></div>
+          <div class="spc"><div class="spc-val" id="sp-insurance" style="color:var(--amber)">—</div><div class="spc-label">Insurance (20%)</div></div>
+          <div class="spc"><div class="spc-val" id="sp-logistics" style="color:var(--indigo)">—</div><div class="spc-label">Logistics (20%)</div></div>
+          <div class="spc spc-total"><div class="spc-val" id="sp-total">—</div><div class="spc-label">Total score</div></div>
+        </div>
+        <div class="spc-explain" id="sp-explain" style="color:var(--text-mute)">Select clinical urgency to generate score</div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeAddModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="savePatient()">Add to waitlist</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let patients=[], activityLog=[], sortField='priority', sortDir='desc';
+let currentView='urgency', expandedId=null, admittedCount=0;
+
+// ── SCORING ──────────────────────────────
+function calcScore(p){
+  const urgMap={1:10,2:30,3:55,4:78,5:100};
+  let c=urgMap[p.urgency]||0;
+  if(p.devFlag) c=Math.min(100,c+15);
+  if(p.authDeadline){
+    const d=Math.floor((new Date(p.authDeadline)-new Date())/86400000);
+    if(d<=7)c=Math.min(100,c+20);else if(d<=14)c=Math.min(100,c+10);
+  }
+  const wk=Math.floor((Date.now()-new Date(p.addedAt))/86400000/7);
+  c=Math.min(100,c+Math.min(15,wk*3));
+  let ins=0;
+  if(p.authStatus==='verified')ins+=60;else if(p.authStatus==='pending')ins+=20;
+  if(p.insTier==='high')ins+=25;else if(p.insTier==='standard')ins+=15;else if(p.insTier==='medicaid')ins+=10;
+  if(p.docReady==='complete')ins+=15;else if(p.docReady==='partial')ins+=7;
+  ins=Math.min(100,ins);
+  let log=0;
+  if(p.discipline&&p.discipline.includes('+'))log+=30;
+  if(p.docReady==='complete')log+=40;else if(p.docReady==='partial')log+=20;
+  if(p.avail)log+=20;
+  log=Math.min(100,log);
+  return{clinical:Math.round(c),insurance:Math.round(ins),logistics:Math.round(log),total:Math.round(c*.6+ins*.2+log*.2)};
+}
+function priClass(s){return s>=75?'pri-high':s>=45?'pri-med':'pri-low'}
+function readyTo(p){return p.authStatus==='verified'&&p.docReady==='complete'}
+function checkinDue(p){if(!p.smsCheckin)return false;const l=p.lastCheckin?new Date(p.lastCheckin):new Date(p.addedAt);return(Date.now()-l)>=14*86400000}
+
+// ── SAMPLE DATA ──────────────────────────
+const SAMPLES=[
+  {childFirst:'Mia',childLast:'Torres',dob:'2019-06-14',guardian:'Lena Torres',phone:'(404)555-0112',email:'lena@example.com',address:'Atlanta GA',discipline:'OT',diagnosis:'Sensory processing disorder',md:'Dr. Osei, Children\'s Healthcare',urgency:4,devFlag:true,authDeadline:'',authStatus:'verified',insTier:'standard',insCarrier:'Aetna',insId:'M123456',docReady:'complete',location:'main',avail:'After school only',mdNotes:'Significant regression noted at last eval. Referral for OT sensory integration. Parent reports daily meltdowns.',notes:'Insurance called 7/12 — 20 visits authorized.',smsCheckin:true,emailUpdates:true,manualFlag:false,addedAt:new Date(Date.now()-21*86400000).toISOString(),lastCheckin:null},
+  {childFirst:'Elijah',childLast:'Brown',dob:'2017-03-22',guardian:'Marcus Brown',phone:'(404)555-0198',email:'marcus@example.com',address:'Decatur GA',discipline:'PT',diagnosis:'Post-op ACL repair — pediatric',md:'Dr. Reyes, Orthopedic Associates',urgency:5,devFlag:false,authDeadline:new Date(Date.now()+6*86400000).toISOString().split('T')[0],authStatus:'verified',insTier:'high',insCarrier:'BCBS',insId:'B998811',docReady:'complete',location:'main',avail:'Flexible',mdNotes:'Post-operative PT required within 3 weeks of procedure. Authorization expires in 6 days.',notes:'URGENT — auth deadline in 6 days. Call immediately.',smsCheckin:true,emailUpdates:true,manualFlag:true,addedAt:new Date(Date.now()-8*86400000).toISOString(),lastCheckin:null},
+  {childFirst:'Sophia',childLast:'Kim',dob:'2020-11-05',guardian:'Ji-Young Kim',phone:'(404)555-0233',email:'jiyoung@example.com',address:'Sandy Springs GA',discipline:'SLP',diagnosis:'Expressive language delay',md:'Dr. Patel, Northside Pediatrics',urgency:3,devFlag:true,authDeadline:'',authStatus:'pending',insTier:'medicaid',insCarrier:'Peach State Health',insId:'',docReady:'partial',location:'main',avail:'Mornings preferred',mdNotes:'Age 3, expressive language significantly below milestones. Medicaid auth pending.',notes:'Pre-auth submitted 7/18. Awaiting callback.',smsCheckin:true,emailUpdates:false,manualFlag:false,addedAt:new Date(Date.now()-35*86400000).toISOString(),lastCheckin:new Date(Date.now()-15*86400000).toISOString()},
+  {childFirst:'Noah',childLast:'Patel',dob:'2016-08-30',guardian:'Priya Patel',phone:'(404)555-0341',email:'priya@example.com',address:'Alpharetta GA',discipline:'OT+SLP',diagnosis:'ASD — fine motor + communication',md:'Dr. Williams, Marcus Autism Center',urgency:4,devFlag:false,authDeadline:'',authStatus:'verified',insTier:'high',insCarrier:'United Healthcare',insId:'U445522',docReady:'complete',location:'any',avail:'After school, no Fridays',mdNotes:'Dual discipline referral OT (fine motor, ADL) and SLP (pragmatic language). IEP services ongoing at school.',notes:'Prefers bundled back-to-back OT+SLP sessions.',smsCheckin:true,emailUpdates:true,manualFlag:false,addedAt:new Date(Date.now()-14*86400000).toISOString(),lastCheckin:null},
+  {childFirst:'Amara',childLast:'Osei',dob:'2021-02-18',guardian:'Kwame Osei',phone:'(404)555-0477',email:'kwame@example.com',address:'East Point GA',discipline:'OT',diagnosis:'Fine motor delay',md:'Dr. Thompson, Grady Pediatrics',urgency:2,devFlag:false,authDeadline:'',authStatus:'none',insTier:'medicaid',insCarrier:'Amerigroup',insId:'',docReady:'incomplete',location:'main',avail:'Any',mdNotes:'Mild fine motor delay. Non-urgent. Intake paperwork still pending.',notes:'Parent has not returned intake forms. Call before scheduling.',smsCheckin:false,emailUpdates:true,manualFlag:false,addedAt:new Date(Date.now()-42*86400000).toISOString(),lastCheckin:new Date(Date.now()-13*86400000).toISOString()},
+];
+function loadSamples(){patients=SAMPLES.map((p,i)=>({...p,id:Date.now()+i}));patients.forEach(p=>addLog(p,'added',`Added — ${p.discipline} · ${p.diagnosis}`));refresh();}
+
+// ── AUTH ─────────────────────────────────
+function doLogin(){
+  const em=document.getElementById('auth-email').value.trim();
+  const pw=document.getElementById('auth-pw').value;
+  const err=document.getElementById('auth-err');
+  if(em==='coordinator@reachpediatrics.com'&&pw==='demo1234'){
+    document.getElementById('auth-screen').style.display='none';
+    document.getElementById('app-shell').style.display='flex';
+    loadSamples();
+  }else{err.textContent='Invalid credentials.';err.style.display='block';}
+}
+function doLogout(){document.getElementById('app-shell').style.display='none';document.getElementById('auth-screen').style.display='flex';}
+document.getElementById('auth-pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ── NAVIGATION ────────────────────────────
+function showPage(pg){
+  ['waitlist','urgent','log'].forEach(p=>{
+    document.getElementById(`page-${p}`)?.classList.remove('active');
+    document.getElementById(`nav-${p}`)?.classList.remove('active');
+  });
+  document.getElementById(`page-${pg}`)?.classList.add('active');
+  document.getElementById(`nav-${pg}`)?.classList.add('active');
+  const titles={waitlist:'Waitlist',urgent:'Urgent & Flagged',log:'Activity log'};
+  const subs={waitlist:'All active patients',urgent:'Score ≥ 75 or manually flagged',log:'All system activity'};
+  document.getElementById('tb-title').textContent=titles[pg]||'';
+  document.getElementById('tb-sub').textContent=subs[pg]||'';
+  if(pg==='log')renderLog();
+  if(pg==='urgent')renderUrgent();
+}
+
+function setView(v){
+  currentView=v;
+  document.getElementById('vt-urgency').classList.toggle('active',v==='urgency');
+  document.getElementById('vt-schedule').classList.toggle('active',v==='schedule');
+  document.getElementById('sv-urgency').classList.toggle('active',v==='urgency');
+  document.getElementById('sv-schedule').classList.toggle('active',v==='schedule');
+  renderTable();
+  showToast(v==='urgency'?'Urgency view — sorted by clinical priority':'Fill-schedule view — ready-to-book patients first');
+}
+
+// ── STATS ─────────────────────────────────
+function refresh(){updateStats();renderTable();renderUrgent();updateBadges();}
+function updateStats(){
+  document.getElementById('st-total').textContent=patients.length;
+  document.getElementById('st-urgent').textContent=patients.filter(p=>calcScore(p).total>=75||p.manualFlag).length;
+  document.getElementById('st-ready').textContent=patients.filter(p=>readyTo(p)).length;
+  document.getElementById('st-checkin').textContent=patients.filter(p=>checkinDue(p)).length;
+  const w=patients.map(p=>Math.floor((Date.now()-new Date(p.addedAt))/86400000));
+  document.getElementById('st-avg').textContent=w.length?Math.round(w.reduce((a,b)=>a+b,0)/w.length):'—';
+}
+function updateBadges(){
+  document.getElementById('sb-n-all').textContent=patients.length;
+  const u=patients.filter(p=>calcScore(p).total>=75||p.manualFlag).length;
+  const ub=document.getElementById('sb-n-urgent');
+  ub.textContent=u;ub.style.display=u>0?'inline-block':'none';
+}
+
+// ── TABLE ─────────────────────────────────
+function sortBy(f){
+  sortField===f?sortDir=sortDir==='desc'?'asc':'desc':(sortField=f,sortDir='desc');
+  ['priority','insurance','wait'].forEach(x=>document.getElementById(`th-${x}`)?.classList.remove('sorted'));
+  document.getElementById(`th-${f}`)?.classList.add('sorted');
+  renderTable();
+}
+function filtered(){
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
+  const fd=document.getElementById('f-discipline')?.value||'';
+  const fs=document.getElementById('f-status')?.value||'';
+  const fi=document.getElementById('f-insurance')?.value||'';
+  let list=patients.filter(p=>{
+    if(q&&!`${p.childFirst} ${p.childLast} ${p.diagnosis} ${p.insCarrier} ${p.guardian}`.toLowerCase().includes(q))return false;
+    if(fd){const m=p.discipline.includes('+');if(fd==='Multi'&&!m)return false;if(fd!=='Multi'&&!m&&p.discipline!==fd)return false;if(fd!=='Multi'&&m&&!p.discipline.includes(fd))return false;}
+    if(fs==='ready'&&!readyTo(p))return false;
+    if(fs==='pending'&&(readyTo(p)||calcScore(p).total>=75))return false;
+    if(fs==='urgent'&&calcScore(p).total<75&&!p.manualFlag)return false;
+    if(fi==='verified'&&p.authStatus!=='verified')return false;
+    if(fi==='pending'&&p.authStatus!=='pending')return false;
+    return true;
+  });
+  list.sort((a,b)=>{
+    let av,bv;
+    if(sortField==='priority'){
+      if(currentView==='schedule'){
+        const fa=(a.authStatus==='verified'?40:0)+(a.docReady==='complete'?30:a.docReady==='partial'?10:0)+(a.avail?10:0)+calcScore(a).total*.2;
+        const fb=(b.authStatus==='verified'?40:0)+(b.docReady==='complete'?30:b.docReady==='partial'?10:0)+(b.avail?10:0)+calcScore(b).total*.2;
+        av=fa;bv=fb;
+      }else{av=calcScore(a).total;bv=calcScore(b).total;}
+    }else if(sortField==='insurance'){const o={verified:3,pending:2,none:1};av=o[a.authStatus]||0;bv=o[b.authStatus]||0;}
+    else if(sortField==='wait'){av=new Date(a.addedAt).getTime();bv=new Date(b.addedAt).getTime();}
+    else{av=0;bv=0;}
+    return sortDir==='desc'?bv-av:av-bv;
+  });
+  return list;
+}
+function renderTable(){
+  updateStats();
+  const list=filtered();
+  const tb=document.getElementById('patient-tbody');
+  if(!list.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">⊘</div><div class="empty-msg">No patients match your filters</div><div class="empty-sub">Try adjusting the search or filter options above</div></div></td></tr>`;return;}
+  tb.innerHTML=list.map(p=>patientRow(p)).join('');
+  if(expandedId){const p=patients.find(x=>x.id===expandedId);if(p){const tr=tb.querySelector(`tr[data-id="${expandedId}"]`);if(tr){tr.classList.add('row-expanded');insertDrawer(p,tr);}}}
+}
+function patientRow(p){
+  const s=calcScore(p);const pc=priClass(s.total);
+  const wait=Math.floor((Date.now()-new Date(p.addedAt))/86400000);
+  const disc=discBadge(p.discipline);
+  const auth=p.authStatus==='verified'?'<span class="ins-chip ins-v">Verified</span>':p.authStatus==='pending'?'<span class="ins-chip ins-p">Pending</span>':'<span class="ins-chip ins-n">None</span>';
+  const status=p.manualFlag||s.total>=75?'<span class="badge badge-urgent">⚑ Urgent</span>':readyTo(p)?'<span class="badge badge-ready">✓ Ready</span>':'<span class="badge badge-pending">Pending</span>';
+  const sms=p.smsCheckin?'<span class="badge badge-sms-on">✉</span>':'<span class="badge badge-sms-off">✗</span>';
+  const due=checkinDue(p)?'<span class="badge badge-urgent" style="font-size:10px;margin-left:3px">Due</span>':'';
+  return `<tr data-id="${p.id}" onclick="toggleDrawer(${p.id})">
+    <td><span class="pri-pill ${pc}"><span class="pri-dot"></span>${s.total}</span></td>
+    <td><div class="td-name">${p.childFirst} ${p.childLast}</div><div class="td-sub">${ageStr(p.dob)} &middot; ${p.guardian}</div></td>
+    <td>${disc}</td>
+    <td><div style="font-size:13px;font-weight:500">${p.diagnosis||'—'}</div><div class="td-sub">${p.md||''}</div></td>
+    <td><div style="font-size:13px;font-weight:500">${p.insCarrier||'—'}</div><div style="margin-top:3px">${auth}</div></td>
+    <td>${status}</td>
+    <td><span style="font-weight:600">${wait}d</span>${due}</td>
+    <td>${sms}</td>
+    <td onclick="event.stopPropagation()">
+      <div style="display:flex;gap:3px">
+        <button class="btn btn-xs" style="color:#2A6644;border-color:var(--sage-bdr);background:var(--sage-bg)" onclick="admitPatient(${p.id})">Admit</button>
+        <button class="btn btn-xs" style="color:var(--rose);border-color:var(--rose-bdr);background:var(--rose-bg)" onclick="confirmRemove(${p.id})">✕</button>
+      </div>
+    </td>
+  </tr>`;
+}
+function discBadge(d){
+  if(!d)return'—';
+  if(d.includes('+'))return`<span class="badge badge-multi">${d}</span>`;
+  if(d==='OT')return`<span class="badge badge-ot">OT</span>`;
+  if(d==='PT')return`<span class="badge badge-pt">PT</span>`;
+  if(d==='SLP')return`<span class="badge badge-slp">SLP</span>`;
+  return`<span class="badge">${d}</span>`;
+}
+function ageStr(dob){if(!dob)return'—';const a=Math.floor((Date.now()-new Date(dob+'T12:00:00'))/365.25/86400000);return`Age ${a}`;}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function timeSince(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';const m=Math.floor(s/60);if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
+
+// ── DRAWER ────────────────────────────────
+function toggleDrawer(id){
+  const tb=document.getElementById('patient-tbody');
+  if(expandedId===id){tb.querySelector('.drawer-tr')?.remove();tb.querySelector(`tr[data-id="${id}"]`)?.classList.remove('row-expanded');expandedId=null;return;}
+  tb.querySelector('.drawer-tr')?.remove();tb.querySelectorAll('tr').forEach(r=>r.classList.remove('row-expanded'));
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  const tr=tb.querySelector(`tr[data-id="${id}"]`);if(!tr)return;
+  tr.classList.add('row-expanded');insertDrawer(p,tr);expandedId=id;
+}
+function insertDrawer(p,tr){
+  const s=calcScore(p);const wait=Math.floor((Date.now()-new Date(p.addedAt))/86400000);
+  const dtr=document.createElement('tr');dtr.className='drawer-tr';
+  dtr.innerHTML=`<td colspan="9"><div class="drawer-body">
+    <div class="drawer-cols">
+      <div class="drawer-section">
+        <div class="d-section-title">Priority breakdown</div>
+        <div class="score-chips">
+          <div class="score-chip sc-clinical"><div class="score-chip-val">${s.clinical}</div><div class="score-chip-label">Clinical 60%</div></div>
+          <div class="score-chip sc-insurance"><div class="score-chip-val">${s.insurance}</div><div class="score-chip-label">Insurance 20%</div></div>
+          <div class="score-chip sc-logistics"><div class="score-chip-val">${s.logistics}</div><div class="score-chip-label">Logistics 20%</div></div>
+          <div class="score-chip sc-total"><div class="score-chip-val">${s.total}</div><div class="score-chip-label">Total</div></div>
+        </div>
+      </div>
+      <div class="drawer-section">
+        <div class="d-section-title">Clinical</div>
+        <div class="d-row"><div class="d-label">Urgency</div><div class="d-val">${p.urgency}/5${p.devFlag?' · Dev. window flagged':''}</div></div>
+        <div class="d-row"><div class="d-label">Auth deadline</div><div class="d-val">${p.authDeadline?fmtDate(p.authDeadline):'None'}</div></div>
+        <div class="d-row"><div class="d-label">On waitlist</div><div class="d-val">${wait} days (added ${fmtDate(p.addedAt)})</div></div>
+      </div>
+      <div class="drawer-section">
+        <div class="d-section-title">Insurance &amp; docs</div>
+        <div class="d-row"><div class="d-label">Carrier</div><div class="d-val">${p.insCarrier||'—'}${p.insId?' · '+p.insId:''}</div></div>
+        <div class="d-row"><div class="d-label">Authorization</div><div class="d-val">${p.authStatus}</div></div>
+        <div class="d-row"><div class="d-label">Documentation</div><div class="d-val">${p.docReady}</div></div>
+        <div class="d-row"><div class="d-label">Tier</div><div class="d-val">${p.insTier}</div></div>
+      </div>
+      <div class="drawer-section">
+        <div class="d-section-title">Contact &amp; logistics</div>
+        <div class="d-row"><div class="d-label">Guardian</div><div class="d-val">${p.guardian}</div></div>
+        <div class="d-row"><div class="d-label">Phone</div><div class="d-val">${p.phone}</div></div>
+        <div class="d-row"><div class="d-label">Email</div><div class="d-val">${p.email||'—'}</div></div>
+        <div class="d-row"><div class="d-label">Availability</div><div class="d-val">${p.avail||'Not specified'}</div></div>
+        <div class="d-row"><div class="d-label">Location</div><div class="d-val">${p.location||'—'}</div></div>
+      </div>
+    </div>
+    ${p.mdNotes?`<div class="d-section-title" style="margin-bottom:.5rem">MD / referral notes</div><div class="notes-area" style="margin-bottom:1rem">${p.mdNotes}</div>`:''}
+    ${p.notes?`<div class="d-section-title" style="margin-bottom:.5rem">Staff notes</div><div class="notes-area" style="margin-bottom:1rem">${p.notes}</div>`:''}
+    <div class="d-section-title" style="margin-bottom:.5rem">Communication</div>
+    <div class="drawer-comm">
+      <div class="comm-item">
+        <span>SMS check-in</span>
+        <label class="tog"><input type="checkbox" ${p.smsCheckin?'checked':''} onchange="toggleSms(${p.id},this.checked)"><span class="tog-track"></span></label>
+        <span class="comm-meta">${p.smsCheckin?'On':'Off'} · Last: ${p.lastCheckin?fmtDate(p.lastCheckin):'Never'}</span>
+      </div>
+      <div class="comm-item">
+        <span>Email updates</span>
+        <label class="tog"><input type="checkbox" ${p.emailUpdates?'checked':''} onchange="toggleEmail(${p.id},this.checked)"><span class="tog-track"></span></label>
+      </div>
+    </div>
+    <div class="drawer-actions">
+      <button class="btn btn-sm" style="background:var(--sage-bg);color:#2A6644;border-color:var(--sage-bdr)" onclick="admitPatient(${p.id})">✓ Admit patient</button>
+      <button class="btn btn-sm" onclick="sendManualCheckin(${p.id})">Send check-in now</button>
+      <button class="btn btn-sm" onclick="toggleFlag(${p.id})">${p.manualFlag?'Remove flag':'⚑ Flag as urgent'}</button>
+      <button class="btn btn-sm" style="color:var(--rose);border-color:var(--rose-bdr);background:var(--rose-bg)" onclick="confirmRemove(${p.id})">Remove from waitlist</button>
+    </div>
+  </div></td>`;
+  tr.after(dtr);
+}
+
+// ── URGENT TABLE ──────────────────────────
+function renderUrgent(){
+  const list=patients.filter(p=>calcScore(p).total>=75||p.manualFlag).sort((a,b)=>calcScore(b).total-calcScore(a).total);
+  const tb=document.getElementById('urgent-tbody');
+  if(!list.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">✓</div><div class="empty-msg">No urgent patients right now</div></div></td></tr>`;return;}
+  tb.innerHTML=list.map(p=>{
+    const s=calcScore(p);const wait=Math.floor((Date.now()-new Date(p.addedAt))/86400000);
+    const reasons=[];if(s.total>=75)reasons.push(`Score ${s.total}`);if(p.manualFlag)reasons.push('Manually flagged');if(p.authDeadline){const d=Math.floor((new Date(p.authDeadline)-Date.now())/86400000);if(d<=14)reasons.push(`Auth expires in ${d}d`);}if(p.devFlag)reasons.push('Developmental window');
+    const auth=p.authStatus==='verified'?'<span class="ins-chip ins-v">Verified</span>':p.authStatus==='pending'?'<span class="ins-chip ins-p">Pending</span>':'<span class="ins-chip ins-n">None</span>';
+    return`<tr data-id="${p.id}" onclick="jumpToPatient(${p.id})">
+      <td><span class="pri-pill pri-high"><span class="pri-dot"></span>${s.total}</span></td>
+      <td><div class="td-name">${p.childFirst} ${p.childLast}</div><div class="td-sub">${ageStr(p.dob)} &middot; ${p.phone}</div></td>
+      <td>${discBadge(p.discipline)}</td>
+      <td><div style="font-size:12px;font-weight:600;color:var(--rose)">${reasons.join(' · ')}</div></td>
+      <td><div>${p.insCarrier||'—'}</div><div style="margin-top:3px">${auth}</div></td>
+      <td style="font-weight:600">${wait}d</td>
+      <td>${p.smsCheckin?'<span class="badge badge-sms-on">✉</span>':'<span class="badge badge-sms-off">✗</span>'}</td>
+      <td onclick="event.stopPropagation()"><div style="display:flex;gap:3px">
+        <button class="btn btn-xs" style="color:#2A6644;border-color:var(--sage-bdr);background:var(--sage-bg)" onclick="admitPatient(${p.id})">Admit</button>
+        <button class="btn btn-xs" onclick="sendManualCheckin(${p.id})">Check-in</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+function jumpToPatient(id){showPage('waitlist');setTimeout(()=>toggleDrawer(id),50);}
+
+// ── PATIENT ACTIONS ───────────────────────
+function admitPatient(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  if(!confirm(`Admit ${p.childFirst} ${p.childLast}? They will be removed from the waitlist.`))return;
+  addLog(p,'admitted',`Admitted — ${p.discipline} · ${p.insCarrier}`);
+  patients=patients.filter(x=>x.id!==id);admittedCount++;expandedId=null;
+  refresh();showToast(`${p.childFirst} ${p.childLast} admitted`);
+}
+function confirmRemove(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  if(!confirm(`Remove ${p.childFirst} ${p.childLast} from the waitlist?`))return;
+  addLog(p,'removed',`Removed from waitlist`);
+  patients=patients.filter(x=>x.id!==id);expandedId=null;
+  refresh();showToast(`${p.childFirst} ${p.childLast} removed`);
+}
+function toggleSms(id,val){const p=patients.find(x=>x.id===id);if(!p)return;p.smsCheckin=val;addLog(p,'edit',`SMS check-in ${val?'enabled':'disabled'} by staff`);showToast(`SMS ${val?'enabled':'disabled'} for ${p.childFirst}`);}
+function toggleEmail(id,val){const p=patients.find(x=>x.id===id);if(!p)return;p.emailUpdates=val;showToast(`Email ${val?'enabled':'disabled'} for ${p.childFirst}`);}
+function toggleFlag(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  p.manualFlag=!p.manualFlag;addLog(p,'edit',`${p.manualFlag?'Flagged as urgent':'Flag removed'} by staff`);
+  expandedId=null;refresh();showToast(`${p.childFirst} ${p.manualFlag?'flagged':'unflagged'}`);
+}
+function sendManualCheckin(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  p.lastCheckin=new Date().toISOString();
+  const via=p.smsCheckin?'SMS':p.emailUpdates?'email':'phone';
+  addLog(p,'checkin',`Manual check-in sent via ${via}: "Hi ${p.guardian}, ${p.childFirst} is on the REACH waitlist. Still need services? Reply YES to stay or NO to remove."`);
+  refresh();showToast(`Check-in sent to ${p.guardian}`);
+}
+function triggerBulkCheckin(){
+  const due=patients.filter(p=>checkinDue(p));
+  if(!due.length){showToast('No check-ins due right now');return;}
+  if(!confirm(`Send check-ins to ${due.length} patient(s)?`))return;
+  due.forEach(p=>{p.lastCheckin=new Date().toISOString();const via=p.smsCheckin?'SMS':p.emailUpdates?'email':'phone';addLog(p,'checkin',`Bulk check-in sent via ${via}`);});
+  refresh();showToast(`Check-ins sent to ${due.length} patient(s)`);
+}
+
+// ── ADD PATIENT MODAL ─────────────────────
+function openAddModal(){document.getElementById('add-modal').classList.add('open');updateScorePreview();}
+function closeAddModal(){document.getElementById('add-modal').classList.remove('open');}
+function handleModalBg(e){if(e.target===document.getElementById('add-modal'))closeAddModal();}
+const v=id=>document.getElementById(id)?.value?.trim()||'';
+const vc=id=>document.getElementById(id)?.checked||false;
+const clearE=id=>{const e=document.getElementById(id);if(e)e.textContent='';};
+const setE=(id,m)=>{const e=document.getElementById(id);if(e)e.textContent=m;};
+
+function calcPreview(urgency,authDeadline,devFlag,authStatus,insTier,docReady){
+  const um={1:10,2:30,3:55,4:78,5:100};let c=um[parseInt(urgency)]||0;
+  if(devFlag==='1')c=Math.min(100,c+15);
+  if(authDeadline){const d=Math.floor((new Date(authDeadline)-new Date())/86400000);if(d<=7)c=Math.min(100,c+20);else if(d<=14)c=Math.min(100,c+10);}
+  let ins=0;if(authStatus==='verified')ins+=60;else if(authStatus==='pending')ins+=20;
+  if(insTier==='high')ins+=25;else if(insTier==='standard')ins+=15;else if(insTier==='medicaid')ins+=10;
+  if(docReady==='complete')ins+=15;else if(docReady==='partial')ins+=7;ins=Math.min(100,ins);
+  let log=0;if(docReady==='complete')log+=40;else if(docReady==='partial')log+=20;log=Math.min(100,log);
+  return{clinical:Math.round(c),insurance:Math.round(ins),logistics:Math.round(log),total:Math.round(c*.6+ins*.2+log*.2)};
+}
+function updateScorePreview(){
+  const s=calcPreview(v('f-urgency'),v('f-auth-deadline'),v('f-dev-flag'),v('f-auth-status'),v('f-ins-tier'),v('f-doc-ready'));
+  const has=v('f-urgency')!=='';
+  document.getElementById('sp-clinical').textContent=has?s.clinical:'—';
+  document.getElementById('sp-insurance').textContent=has?s.insurance:'—';
+  document.getElementById('sp-logistics').textContent=has?s.logistics:'—';
+  document.getElementById('sp-total').textContent=has?s.total:'—';
+  if(has){
+    const pc=priClass(s.total);const colors={'pri-high':'var(--rose)','pri-med':'var(--amber)','pri-low':'var(--sage)'};
+    const msg=s.total>=75?'⚑ Will be flagged as high priority':s.total>=45?'Medium priority — monitor closely':'Standard priority';
+    const el=document.getElementById('sp-explain');
+    el.textContent=msg;
+    el.style.color=pc==='pri-high'?'var(--rose)':pc==='pri-med'?'var(--amber)':'var(--sage)';
+  }else{document.getElementById('sp-explain').textContent='Select clinical urgency to generate score';document.getElementById('sp-explain').style.color='var(--text-mute)';}
+}
+function savePatient(){
+  let ok=true;
+  ['first','last','dob','guardian','phone','discipline','urgency','ins-carrier','md'].forEach(f=>clearE(`e-${f}`));
+  if(!v('f-first')){setE('e-first','Required');ok=false;}
+  if(!v('f-last')){setE('e-last','Required');ok=false;}
+  if(!v('f-dob')){setE('e-dob','Required');ok=false;}
+  if(!v('f-guardian')){setE('e-guardian','Required');ok=false;}
+  if(!v('f-phone')){setE('e-phone','Required');ok=false;}
+  if(!v('f-discipline-add')){setE('e-discipline','Required');ok=false;}
+  if(!v('f-urgency')){setE('e-urgency','Required');ok=false;}
+  if(!v('f-ins-carrier')){setE('e-ins-carrier','Required');ok=false;}
+  if(!v('f-md')){setE('e-md','Required');ok=false;}
+  if(!ok)return;
+  const p={id:Date.now()+Math.random(),childFirst:v('f-first'),childLast:v('f-last'),dob:v('f-dob'),guardian:v('f-guardian'),phone:v('f-phone'),email:v('f-email'),address:v('f-address'),avail:v('f-avail'),discipline:v('f-discipline-add'),diagnosis:v('f-diagnosis'),md:v('f-md'),urgency:parseInt(v('f-urgency')),devFlag:v('f-dev-flag')==='1',authDeadline:v('f-auth-deadline'),manualFlag:v('f-manual-flag')==='1',mdNotes:v('f-md-notes'),insCarrier:v('f-ins-carrier'),insId:v('f-ins-id'),authStatus:v('f-auth-status'),insTier:v('f-ins-tier'),docReady:v('f-doc-ready'),location:v('f-location'),notes:v('f-notes'),smsCheckin:vc('f-sms-checkin'),emailUpdates:vc('f-email-updates'),addedAt:new Date().toISOString(),lastCheckin:null};
+  patients.push(p);addLog(p,'added',`Added — ${p.discipline} · ${p.diagnosis} · Score ${calcScore(p).total}`);
+  closeAddModal();refresh();showToast(`${p.childFirst} ${p.childLast} added · Score: ${calcScore(p).total}`);
+  ['f-first','f-last','f-dob','f-guardian','f-phone','f-email','f-address','f-avail','f-diagnosis','f-md','f-md-notes','f-ins-carrier','f-ins-id','f-auth-deadline','f-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-discipline-add','f-urgency','f-dev-flag','f-manual-flag','f-auth-status','f-ins-tier','f-doc-ready','f-location'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  document.getElementById('f-sms-checkin').checked=true;document.getElementById('f-email-updates').checked=true;updateScorePreview();
+}
+
+// ── LOG ───────────────────────────────────
+function addLog(p,type,detail){activityLog.unshift({patient:`${p.childFirst} ${p.childLast}`,type,detail,time:new Date().toISOString()});if(activityLog.length>80)activityLog.pop();}
+function renderLog(){
+  const el=document.getElementById('log-list');
+  if(!activityLog.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">≡</div><div class="empty-msg">No activity yet</div></div>';return;}
+  const lbl={added:'Added',checkin:'Check-in sent',removed:'Removed',admitted:'Admitted',edit:'Modified'};
+  el.innerHTML=activityLog.map(e=>`<div class="log-entry"><div class="log-pip log-pip-${e.type}"></div><div class="log-content"><div class="log-event-title">${lbl[e.type]||e.type} — ${e.patient}</div><div class="log-event-detail">${e.detail}</div></div><div class="log-time">${timeSince(e.time)}</div></div>`).join('');
+}
+
+// ── TOAST ─────────────────────────────────
+let tTimer;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tTimer);tTimer=setTimeout(()=>t.classList.remove('show'),2800);}
+</script>
+</body>
+</html>
